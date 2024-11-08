@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spam Detector</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        max-width: 600px;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .result {
+        margin-top: 20px;
+        font-weight: bold;
+        font-size: 1.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center mb-4">Spam Detector</h2>
+      <form id="spamForm" method="POST" action="{{ url_for('index') }}">
+        <div class="form-group">
+          <label for="message">Enter your message:</label>
+          <textarea
+            class="form-control"
+            id="message"
+            name="message"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">
+          Check for Spam
+        </button>
+      </form>
+      {% if result %}
+      <div
+        class="result alert {% if result == 'Spam' %}alert-danger{% else %}alert-success{% endif %}"
+      >
+        Result: {{ result }}
+      </div>
+      {% endif %}
+    </div>
+  </body>
+</html>
