@@ -5,27 +5,37 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 # Load the vectorizer and model
-with open(os.path.join('models', 'vectorizer.pkl'), 'rb') as vectorizer_file:
-    vectorizer = pickle.load(vectorizer_file)
-with open(os.path.join('models', 'model.pkl'), 'rb') as model_file:
+vectorizer_path = os.path.join("models", "vectorizer.pkl")
+model_path = os.path.join("models", "model.pkl")
+
+with open(vectorizer_path, "rb") as vec_file:
+    vectorizer = pickle.load(vec_file)
+
+with open(model_path, "rb") as model_file:
     model = pickle.load(model_file)
 
-def detect_spam(message):
-    # Transform the message using the vectorizer
-    vectorized_message = vectorizer.transform([message])
-    # Predict using the loaded model
-    prediction = model.predict(vectorized_message)
-    # Return "Spam" or "Not Spam" based on the prediction
-    return "Spam" if prediction[0] == 1 else "Not Spam"
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def index():
-    result = None
-    if request.method == 'POST':
-        message = request.form['message']
-        # Detect spam or not spam
-        result = detect_spam(message)
-    return render_template('index.html', result=result)
+    if request.method == "POST":
+        # Get user input
+        user_message = request.form["message"]
+        
+        # Transform the message using the vectorizer
+        message_vector = vectorizer.transform([user_message])
+        
+        # Get probabilities
+        probabilities = model.predict_proba(message_vector)[0]
+        spam_probability = probabilities[1]  # Assuming spam is class 1
+        spam_percentage = spam_probability * 100  # Convert to percentage
+        
+        if spam_percentage > 50:  # If greater than 50%, consider it spam
+            result = f"Spam ({spam_percentage:.2f}%)"
+        else:
+            result = "No Spam"
+        
+        return render_template("index.html", result=result)
+    
+    return render_template("index.html", result=None)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
